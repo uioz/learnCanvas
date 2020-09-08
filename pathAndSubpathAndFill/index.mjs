@@ -66,10 +66,9 @@
     context.arc(300, 170, 100, 0, Math.PI * 2, !sameDirection);
 
     context.fill();
-    context.strokeStyle = '#000';
+    context.strokeStyle = "#000";
     context.stroke();
     context.restore();
-    
   }
 
   /**
@@ -160,7 +159,7 @@
     context.restore();
   }
 
-  function drawAnnotations(context,sameDirection) {
+  function drawAnnotations(context, sameDirection) {
     context.save();
     context.strokeStyle = "blue";
     drawInnerCircleAnnotations(context, sameDirection);
@@ -190,11 +189,142 @@
   draw(context, directionCheckbox.checked);
 
   annotationCheckbox.addEventListener("click", () => {
-    
-    draw(context, directionCheckbox.checked,annotationCheckbox.checked);
+    draw(context, directionCheckbox.checked, annotationCheckbox.checked);
   });
 
   directionCheckbox.addEventListener("click", () => {
     draw(context, directionCheckbox.checked, annotationCheckbox.checked);
   });
+}
+
+{
+  /** @type {HTMLCanvasElement} */
+  const canvas = document.getElementById("cutouts");
+  const context = canvas.getContext("2d");
+
+  /**
+   *
+   * @param {CanvasRenderingContext2D} context
+   */
+  function drawGrid(context, color, stepX, stepY) {
+    context.save();
+
+    context.strokeStyle = color;
+    context.fillStyle = "#fff";
+    context.lineWidth = 0.5;
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+    for (
+      let index = stepX + 0.5;
+      index < context.canvas.width;
+      index += stepX
+    ) {
+      context.beginPath();
+      context.moveTo(index, 0);
+      context.lineTo(index, context.canvas.height);
+      context.stroke();
+    }
+
+    for (
+      let index = stepY + 0.5;
+      index < context.canvas.height;
+      index += stepY
+    ) {
+      context.beginPath();
+      context.moveTo(0, index);
+      context.lineTo(context.canvas.width, index);
+      context.stroke();
+    }
+
+    context.restore();
+  }
+
+  function addOuterRectanglePath(context) {
+    context.rect(110, 25, 370, 335);
+  }
+
+  function addCirclePath(context) {
+    context.arc(300, 300, 40, 0, Math.PI * 2, true);
+  }
+
+  /**
+   *
+   * @param {CanvasRenderingContext2D} context
+   * @param {boolean} direction
+   */
+  function rect(context, x = 0, y = 0, w = 0, h = 0, ccw = false) {
+
+    if (ccw) {
+      context.moveTo(x, y);
+      context.lineTo(x, y, h);
+      context.lineTo(x + w, y + h);
+      context.lineTo(x + w, y);
+    } else {
+      context.moveTo(x, y);
+      context.lineTo(x + w, y);
+      context.lineTo(x + w, y + h);
+      context.lineTo(x, y + h);
+    }
+    context.closePath();
+  }
+
+  function addRectanglePath(context) {
+    rect(context, 310, 55, 75, 35, true);
+  }
+
+  function addTrianglePath(context) {
+    context.moveTo(400, 200);
+    context.lineTo(250, 115);
+    context.lineTo(200, 200);
+    context.closePath();
+  }
+
+  function drawCutOuts(context) {
+    context.beginPath();
+    addOuterRectanglePath(context); // 顺时针
+
+    addCirclePath(context); // 逆时针
+    addRectanglePath(context); // 逆时针
+    addTrianglePath(context); // 逆时针
+
+    context.fill();
+  }
+
+  function strokeCutoutShapes(context) {
+    context.save();
+    context.strokeStyle = 'rgba(0,0,0,.0.7)';
+    
+    context.beginPath();
+    addOuterRectanglePath(context); // cw
+    context.stroke();
+
+    context.beginPath();
+    addCirclePath(context);
+    addRectanglePath(context);
+    addTrianglePath(context);
+    context.stroke();
+
+    contexte.restore();
+  }
+
+  /**
+   *
+   * @param {CanvasRenderingContext2D} context
+   */
+  function draw(context) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+
+    drawGrid(context, "lightgray", 10, 10);
+
+    context.shadowColor = "rgba(200,200,0,0.5)";
+    context.shadowOffsetX = context.shadowOffsetY = 12;
+    context.shadowBlur = 15;
+
+    drawCutOuts(context);
+    strokeCutoutShapes(context);
+    
+  }
+
+  context.fillStyle = "goldenrod";
+  draw(context);
 }
