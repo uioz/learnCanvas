@@ -63,7 +63,7 @@ function saveDrawingSurface(context) {
  * @param imageData
  */
 function restoreDrawingSurface(context, imageData) {
-  context.putImageData(imageData);
+  context.putImageData(imageData, 0, 0);
 }
 
 function updateRubberBandRectangle(context, mouseDown, location) {
@@ -83,10 +83,6 @@ function updateRubberBandRectangle(context, mouseDown, location) {
   } else {
     rubberbandRect.top = location.y;
   }
-
-  context.save();
-  context.strokeStyle = "red";
-  context.restore();
 
   return rubberbandRect;
 }
@@ -164,13 +160,15 @@ function drawGuidewires(context, x, y) {
   const strokeSelect = document.getElementById("strokeStyleSelect");
   // 是否开启辅助线
   /** @type {HTMLInputElement} */
-  const guideWireCheckbox = document.getElementById("guideWireCheckbox");
+  const guideWireCheckbox = document.getElementById("guidewireCheckbox");
 
   let drawingSurfaceImageData;
   let mouseDown = {};
   let dragging = false;
   let rubberbandRect = {};
   const guideWires = guideWireCheckbox.value;
+
+  drawGrid(context, "light");
 
   canvas.addEventListener("mousedown", (event) => {
     event.preventDefault();
@@ -193,6 +191,13 @@ function drawGuidewires(context, x, y) {
   });
 
   canvas.addEventListener("mouseup", (event) => {
-    const location = windowToCanvas(event.clientX, event.clientY);
+    const location = windowToCanvas(context, event.clientX, event.clientY);
+
+    restoreDrawingSurface(context, drawingSurfaceImageData);
+    updateRubberband(context, mouseDown, location);
+    dragging = false;
   });
+
+  context.strokeStyle = strokeStyleSelect.value;
+  drawGrid(context, "lightgray", 10, 10);
 }
