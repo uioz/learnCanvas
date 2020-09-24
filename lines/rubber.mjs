@@ -166,7 +166,7 @@ function drawGuidewires(context, x, y) {
   let mouseDown = {};
   let dragging = false;
   let rubberbandRect = {};
-  const guideWires = guideWireCheckbox.value;
+  let guideWires = guideWireCheckbox.value;
 
   drawGrid(context, "light");
 
@@ -196,6 +196,17 @@ function drawGuidewires(context, x, y) {
     restoreDrawingSurface(context, drawingSurfaceImageData);
     updateRubberband(context, mouseDown, location);
     dragging = false;
+  });
+
+  guideWireCheckbox.addEventListener(
+    "change",
+    ({ currentTarget: { checked } }) => {
+      guideWires = checked;
+    }
+  );
+
+  strokeSelect.addEventListener("change", ({ currentTarget: { value } }) => {
+    context.strokeStyle = value;
   });
 
   context.strokeStyle = strokeStyleSelect.value;
